@@ -9,3 +9,5 @@
 ### 2. Run `gui.py` for a better experience
 - You can also run `gui.py` for a more visual gameplay experience.
 - **Note**: `gui.py` is still under development, so some features may not be fully functional.
+
+### 3. The other agents will release
