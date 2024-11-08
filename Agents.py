@@ -40,6 +40,16 @@ def betterEvaluationFunction(gs: gameState):
             both += 1
         if both == 2:
             score += 6
+    for x, y in gs.blackPos:
+        both = 0
+        if x == 0 or x == 7:
+            score -= 2
+            both += 1
+        if y == 0 or y == 7:
+            score -= 2
+            both += 1
+        if both == 2:
+            score -= 10
     return score
 
 better = betterEvaluationFunction

@@ -1,8 +1,8 @@
 import copy
 import tkinter as tk
 from game import gameState
-import time
 from Agents import AlphaBetaAgent
+import time
 
 CELL_SIZE = 60  # 每个棋盘格的大小
 BOARD_SIZE = 8 * CELL_SIZE  # 棋盘的总大小
@@ -19,12 +19,15 @@ class OthelloGUI:
         self.agentEnabled = True
         self.alpha_beta_agent = AlphaBetaAgent() if self.agentEnabled else None
 
-        # 为每个格子绑定点击事件
-        self.canvas.bind("<Button-1>", self.on_canvas_click)
+        # 绘制初始棋盘
+        self.draw_board()
+        self.update_player_label()
 
-        self.draw_board(4, 4)
+        # 开始游戏循环
+        self.game_loop()
 
-    def draw_board(self, x0, y0):
+    def draw_board(self, last_x=None, last_y=None):
+        """绘制棋盘和棋子，并标记合法移动"""
         self.canvas.delete("all")  # 清除当前画布
 
         # 画出棋盘的格子
@@ -42,59 +45,92 @@ class OthelloGUI:
 
         # 获取当前玩家和合法的移动
         suc = copy.deepcopy(self.game)
-        suc.time += 1
+        suc.timeInc()
         player = suc.getPlayer()
         legal_moves = suc.getPlayPosition(player)
 
         # 标记合法位置
         for (x, y) in legal_moves:
-            x1, y1 = y * CELL_SIZE, x * CELL_SIZE  # 注意这里的 (y, x) 转换
+            x1, y1 = y * CELL_SIZE, x * CELL_SIZE
             x2, y2 = x1 + CELL_SIZE, y1 + CELL_SIZE
             self.canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
-        x1, y1 = y0 * CELL_SIZE, x0 * CELL_SIZE  # 注意这里的 (y, x) 转换
-        x2, y2 = x1 + CELL_SIZE, y1 + CELL_SIZE
-        self.canvas.create_rectangle(x1, y1, x2, y2, outline="blue", width=2)
+
+        # 标记上一次的移动
+        if last_x is not None and last_y is not None:
+            x1, y1 = last_y * CELL_SIZE, last_x * CELL_SIZE
+            x2, y2 = x1 + CELL_SIZE, y1 + CELL_SIZE
+            self.canvas.create_rectangle(x1, y1, x2, y2, outline="blue", width=2)
+
+    def game_loop(self):
+        """基于 main.py 的逻辑进行循环判断"""
+        while True:
+            self.game.timeInc()
+            player = self.game.getPlayer()
+            legal_moves = self.game.getPlayPosition(player)
+
+            # 如果没有合法动作，自动跳过回合
+            if not legal_moves:
+                if self.game.numWhite + self.game.numBlack == 64:
+                    self.end_game()
+                    break
+                continue
+
+            # 判断是否轮到 AI
+            if self.agentEnabled and player == -1:
+                x, y = self.alpha_beta_agent.getAction(self.game)
+                self.game.update(x, y, player)
+                self.draw_board(x, y)
+                self.root.update()  # 更新界面显示 AI 的操作
+                time.sleep(0.5)  # 延迟 0.5 秒以便视觉反馈
+            else:
+                # 等待玩家点击合法位置
+                x, y = self.get_player_action(legal_moves)
+                self.game.update(x, y, player)
+                self.draw_board(x, y)
+                self.root.update()  # 更新界面显示玩家的操作
+
+            # 检查游戏是否结束
+            if self.check_game_over():
+                break
+
+    def get_player_action(self, legal_moves):
+        """等待玩家点击一个合法位置"""
+        self.player_click_position = None
+        self.canvas.bind("<Button-1>", self.on_canvas_click)
+
+        # 等待玩家选择一个合法位置
+        while self.player_click_position not in legal_moves:
+            self.root.update()
+            time.sleep(0.1)
+
+        # 解绑点击事件
+        self.canvas.unbind("<Button-1>")
+        return self.player_click_position
 
     def on_canvas_click(self, event):
-        self.game.time += 1
-        # 计算点击的棋盘坐标
+        """处理玩家点击事件"""
         col = event.x // CELL_SIZE
         row = event.y // CELL_SIZE
+        self.player_click_position = (row, col)  # 记录点击位置
+
+    def update_player_label(self):
+        """更新玩家标签（在 GUI 中可扩展）"""
         player = self.game.getPlayer()
+        print("Current Player:", "Black" if player == 1 else "White")
 
-        legal_moves = self.game.getPlayPosition(player)
-        if legal_moves == []:
-            print("You can't move")
-            self.game.time += 1
-            x, y = self.alpha_beta_agent.getAction(self.game)
-            self.game.update(x, y, -1)
-            self.draw_board(x, y)
-            return
+    def check_game_over(self):
+        """检查游戏是否结束"""
+        if self.game.numWhite + self.game.numBlack == 64 or not (
+                self.game.getPlayPosition(1) or self.game.getPlayPosition(-1)):
+            self.end_game()
+            return True
+        return False
 
-        if (row, col) not in legal_moves:
-            print("Invalid move!")
-            return
-
-        # 更新棋盘状态并绘制
-        self.game.update(row, col, player)
-        self.draw_board(row, col)
-        self.root.update()
-
-        # 检查游戏是否结束
-        if self.game.numWhite + self.game.numBlack == 64 or not legal_moves:
-            print("Game Over")
-            self.canvas.unbind("<Button-1>")
-            return
-
-        # AI 回合
-        if self.agentEnabled and self.game.getPlayer() == 1:
-            self.game.time += 1
-            if self.game.getPlayPosition(1) == []:
-                return
-            x, y = self.alpha_beta_agent.getAction(self.game)
-            self.game.update(x, y, -1)
-            self.draw_board(x, y)
-            self.root.update()
+    def end_game(self):
+        """显示游戏结束信息"""
+        winner = "Black" if self.game.numBlack > self.game.numWhite else "White"
+        print(f"Game Over! {winner} wins!")
+        self.canvas.unbind("<Button-1>")  # 禁用点击事件
 
 
 def main():
