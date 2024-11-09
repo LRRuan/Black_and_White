@@ -2,7 +2,7 @@
 
 ## How to Run
 
-### 1. Run `main.py` to interact in the terminal
+### 1. Run `main.py` to interact in the console
 - Run `main.py` in the terminal for an interactive experience.
 - Change the `agentEnabled` parameter to choose between playing with an AI or with a friend.
 
