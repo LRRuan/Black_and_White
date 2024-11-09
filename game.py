@@ -21,364 +21,54 @@ class gameState:
         return 1 if self.time%2 == 0 else -1
 
     def getPlayPosition(self, player):
-        board = self.board
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+        opponent = 1 if player == -1 else -1
+        positions = self.whitePos if player == -1 else self.blackPos
         result = []
-        #player = self.getPlayer()
-        if player == -1:
-            for x, y in self.whitePos:
-                x0 = x
-                y0 = y
-                while x0-1>0 and self.board[x0-1][y0] == 1:
-                    x0 -= 1
-                x0 -= 1
-                if x0 >= 0 and board[x0][y0] == 0 and x0!=x-1:
+
+        for x, y in positions:
+            for dx, dy in directions:
+                x0, y0 = x + dx, y + dy
+                has_opponent_in_between = False
+                while 0 <= x0 < 8 and 0 <= y0 < 8 and self.board[x0][y0] == opponent:
+                    x0 += dx
+                    y0 += dy
+                    has_opponent_in_between = True
+                if 0 <= x0 < 8 and 0 <= y0 < 8 and self.board[x0][y0] == 0 and has_opponent_in_between:
                     result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while y0-1>=0 and self.board[x0][y0-1] == 1:
-                    y0 -= 1
-                y0 -= 1
-                if y0 >= 0 and board[x0][y0] == 0 and y0!=y-1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while x0+1<=7 and self.board[x0+1][y0] == 1:
-                    x0 += 1
-                x0 += 1
-                if x0 <= 7 and board[x0][y0] == 0 and x0!=x+1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while y0+1<=7 and self.board[x0][y0+1] == 1:
-                    y0 += 1
-                y0 += 1
-                if y0 <= 7 and board[x0][y0] == 0 and y0!=y+1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while x0-1>=0 and y0-1>=0 and self.board[x0-1][y0-1] == 1:
-                    y0 -= 1
-                    x0 -= 1
-                y0 -= 1
-                x0 -= 1
-                if x0>=0 and y0>=0 and board[x0][y0] == 0 and y0!=y-1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while x0-1>=0 and y0+1<=7 and self.board[x0-1][y0+1] == 1:
-                    y0 += 1
-                    x0 -= 1
-                y0 += 1
-                x0 -= 1
-                if x0>=0 and y0<=7 and board[x0][y0] == 0 and y0!=y+1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while x0+1<=7 and y0-1>=0 and self.board[x0+1][y0-1] == 1:
-                    y0 -= 1
-                    x0 += 1
-                y0 -= 1
-                x0 += 1
-                if x0<=7 and y0>=0 and board[x0][y0] == 0 and y0!=y-1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while x0+1<=7 and y0+1<=7 and self.board[x0+1][y0+1] == 1:
-                    y0 += 1
-                    x0 += 1
-                y0 += 1
-                x0 += 1
-                if x0<=7 and y0<=7 and board[x0][y0] == 0 and y0!= y+1:
-                    result.append((x0, y0))
-        if player == 1:
-            for x, y in self.blackPos:
-                x0 = x
-                y0 = y
-                while x0-1 >= 0 and self.board[x0 - 1][y0] == -1:
-                    x0 -= 1
-                x0 -= 1
-                if x0 >= 0 and board[x0][y0] == 0 and x0!=x-1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while y0-1 >= 0 and self.board[x0][y0 - 1] == -1:
-                    y0 -= 1
-                y0 -= 1
-                if y0 >= 0 and board[x0][y0] == 0 and y0!=y-1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while x0+1 <= 7 and self.board[x0 + 1][y0] == -1:
-                    x0 += 1
-                x0 += 1
-                if x0 <= 7 and board[x0][y0] == 0 and x0!=x+1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while y0+1 <= 7 and self.board[x0][y0 + 1] == -1:
-                    y0 += 1
-                y0 += 1
-                if y0 <= 7 and board[x0][y0] == 0 and y0!=y+1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while x0-1 >= 0 and y0-1 >= 0 and self.board[x0 - 1][y0 - 1] == -1:
-                    y0 -= 1
-                    x0 -= 1
-                y0 -= 1
-                x0 -= 1
-                if x0 >= 0 and y0 >= 0 and board[x0][y0] == 0 and y0!=y-1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while x0-1 >= 0 and y0+1 <= 7 and self.board[x0 - 1][y0 + 1] == -1:
-                    y0 += 1
-                    x0 -= 1
-                y0 += 1
-                x0 -= 1
-                if x0 >= 0 and y0 <= 7 and board[x0][y0] == 0 and y0!=y+1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while x0+1 <= 7 and y0-1 >= 0 and self.board[x0 + 1][y0 - 1] == -1:
-                    y0 -= 1
-                    x0 += 1
-                y0 -= 1
-                x0 += 1
-                if x0 <= 7 and y0 >= 0 and board[x0][y0] == 0 and y0!=y-1:
-                    result.append((x0, y0))
-                x0 = x
-                y0 = y
-                while x0+1 <= 7 and y0+1 <= 7 and self.board[x0 + 1][y0 + 1] == -1:
-                    y0 += 1
-                    x0 += 1
-                y0 += 1
-                x0 += 1
-                if x0 <= 7 and y0 <= 7 and board[x0][y0] == 0 and y0!=y+1:
-                    result.append((x0, y0))
+
         return list(set(result))
 
     def update(self, x, y, player):
-        if player == -1:
-            self.board[x][y] = -1
-            # 向上
-            x0, y0 = x - 1, y
-            while x0 >= 0 and self.board[x0][y0] == 1:
-                x0 -= 1
-                if x0 >= 0 and self.board[x0][y0] == -1:
-                    x0 += 1
-                    while x0 != x:
-                        self.board[x0][y0] = -1
-                        x0 += 1
-                    break
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+        opponent = 1 if player == -1 else -1
+        self.board[x][y] = player
 
-            # 向下
-            x0, y0 = x + 1, y
-            while x0 <= 7 and self.board[x0][y0] == 1:
-                x0 += 1
-                if x0 <= 7 and self.board[x0][y0] == -1:
-                    x0 -= 1
-                    while x0 != x:
-                        self.board[x0][y0] = -1
-                        x0 -= 1
-                    break
+        for dx, dy in directions:
+            x0, y0 = x + dx, y + dy
+            pieces_to_flip = []
+            while 0 <= x0 < 8 and 0 <= y0 < 8 and self.board[x0][y0] == opponent:
+                pieces_to_flip.append((x0, y0))
+                x0 += dx
+                y0 += dy
+            if 0 <= x0 < 8 and 0 <= y0 < 8 and self.board[x0][y0] == player:
+                for flip_x, flip_y in pieces_to_flip:
+                    self.board[flip_x][flip_y] = player
 
-            # 向左
-            x0, y0 = x, y - 1
-            while y0 >= 0 and self.board[x0][y0] == 1:
-                y0 -= 1
-                if y0 >= 0 and self.board[x0][y0] == -1:
-                    y0 += 1
-                    while y0 != y:
-                        self.board[x0][y0] = -1
-                        y0 += 1
-                    break
+        self.update_positions_and_counts()
 
-            # 向右
-            x0, y0 = x, y + 1
-            while y0 <= 7 and self.board[x0][y0] == 1:
-                y0 += 1
-                if y0 <= 7 and self.board[x0][y0] == -1:
-                    y0 -= 1
-                    while y0 != y:
-                        self.board[x0][y0] = -1
-                        y0 -= 1
-                    break
+    def update_positions_and_counts(self):
+        self.whitePos, self.blackPos = [], []
+        self.numWhite, self.numBlack = 0, 0
 
-            # 左上
-            x0, y0 = x - 1, y - 1
-            while x0 >= 0 and y0 >= 0 and self.board[x0][y0] == 1:
-                x0 -= 1
-                y0 -= 1
-                if x0 >= 0 and y0 >= 0 and self.board[x0][y0] == -1:
-                    x0 += 1
-                    y0 += 1
-                    while x0 != x and y0 != y:
-                        self.board[x0][y0] = -1
-                        x0 += 1
-                        y0 += 1
-                    break
-
-            # 右上
-            x0, y0 = x - 1, y + 1
-            while x0 >= 0 and y0 <= 7 and self.board[x0][y0] == 1:
-                x0 -= 1
-                y0 += 1
-                if x0 >= 0 and y0 <= 7 and self.board[x0][y0] == -1:
-                    x0 += 1
-                    y0 -= 1
-                    while x0 != x and y0 != y:
-                        self.board[x0][y0] = -1
-                        x0 += 1
-                        y0 -= 1
-                    break
-
-            # 左下
-            x0, y0 = x + 1, y - 1
-            while x0 <= 7 and y0 >= 0 and self.board[x0][y0] == 1:
-                x0 += 1
-                y0 -= 1
-                if x0 <= 7 and y0 >= 0 and self.board[x0][y0] == -1:
-                    x0 -= 1
-                    y0 += 1
-                    while x0 != x and y0 != y:
-                        self.board[x0][y0] = -1
-                        x0 -= 1
-                        y0 += 1
-                    break
-
-            # 右下
-            x0, y0 = x + 1, y + 1
-            while x0 <= 7 and y0 <= 7 and self.board[x0][y0] == 1:
-                x0 += 1
-                y0 += 1
-                if x0 <= 7 and y0 <= 7 and self.board[x0][y0] == -1:
-                    x0 -= 1
-                    y0 -= 1
-                    while x0 != x and y0 != y:
-                        self.board[x0][y0] = -1
-                        x0 -= 1
-                        y0 -= 1
-                    break
-
-        elif player == 1:
-            self.board[x][y] = 1
-            # 向上
-            x0, y0 = x - 1, y
-            while x0 >= 0 and self.board[x0][y0] == -1:
-                x0 -= 1
-                if x0 >= 0 and self.board[x0][y0] == 1:
-                    x0 += 1
-                    while x0 != x:
-                        self.board[x0][y0] = 1
-                        x0 += 1
-                    break
-
-            # 向下
-            x0, y0 = x + 1, y
-            while x0 <= 7 and self.board[x0][y0] == -1:
-                x0 += 1
-                if x0 <= 7 and self.board[x0][y0] == 1:
-                    x0 -= 1
-                    while x0 != x:
-                        self.board[x0][y0] = 1
-                        x0 -= 1
-                    break
-
-            # 向左
-            x0, y0 = x, y - 1
-            while y0 >= 0 and self.board[x0][y0] == -1:
-                y0 -= 1
-                if y0 >= 0 and self.board[x0][y0] == 1:
-                    y0 += 1
-                    while y0 != y:
-                        self.board[x0][y0] = 1
-                        y0 += 1
-                    break
-
-            # 向右
-            x0, y0 = x, y + 1
-            while y0 <= 7 and self.board[x0][y0] == -1:
-                y0 += 1
-                if y0 <= 7 and self.board[x0][y0] == 1:
-                    y0 -= 1
-                    while y0 != y:
-                        self.board[x0][y0] = 1
-                        y0 -= 1
-                    break
-
-            # 左上
-            x0, y0 = x - 1, y - 1
-            while x0 >= 0 and y0 >= 0 and self.board[x0][y0] == -1:
-                x0 -= 1
-                y0 -= 1
-                if x0 >= 0 and y0 >= 0 and self.board[x0][y0] == 1:
-                    x0 += 1
-                    y0 += 1
-                    while x0 != x and y0 != y:
-                        self.board[x0][y0] = 1
-                        x0 += 1
-                        y0 += 1
-                    break
-
-            # 右上
-            x0, y0 = x - 1, y + 1
-            while x0 >= 0 and y0 <= 7 and self.board[x0][y0] == -1:
-                x0 -= 1
-                y0 += 1
-                if x0 >= 0 and y0 <= 7 and self.board[x0][y0] == 1:
-                    x0 += 1
-                    y0 -= 1
-                    while x0 != x and y0 != y:
-                        self.board[x0][y0] = 1
-                        x0 += 1
-                        y0 -= 1
-                    break
-
-            # 左下
-            x0, y0 = x + 1, y - 1
-            while x0 <= 7 and y0 >= 0 and self.board[x0][y0] == -1:
-                x0 += 1
-                y0 -= 1
-                if x0 <= 7 and y0 >= 0 and self.board[x0][y0] == 1:
-                    x0 -= 1
-                    y0 += 1
-                    while x0 != x and y0 != y:
-                        self.board[x0][y0] = 1
-                        x0 -= 1
-                        y0 += 1
-                    break
-
-            # 右下
-            x0, y0 = x + 1, y + 1
-            while x0 <= 7 and y0 <= 7 and self.board[x0][y0] == -1:
-                x0 += 1
-                y0 += 1
-                if x0 <= 7 and y0 <= 7 and self.board[x0][y0] == 1:
-                    x0 -= 1
-                    y0 -= 1
-                    while x0 != x and y0 != y:
-                        self.board[x0][y0] = 1
-                        x0 -= 1
-                        y0 -= 1
-                    break
-        newWhitePos = []
-        newBlackPos = []
-        whiteCnt = 0
-        blackCnt = 0
         for x in range(8):
             for y in range(8):
                 if self.board[x][y] == -1:
-                    newWhitePos.append((x, y))
-                    whiteCnt += 1
+                    self.whitePos.append((x, y))
+                    self.numWhite += 1
                 elif self.board[x][y] == 1:
-                    newBlackPos.append((x, y))
-                    blackCnt += 1
-        self.numWhite = whiteCnt
-        self.numBlack = blackCnt
-        self.whitePos = newWhitePos
-        self.blackPos = newBlackPos
-
+                    self.blackPos.append((x, y))
+                    self.numBlack += 1
 
 
 

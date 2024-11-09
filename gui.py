@@ -69,10 +69,12 @@ class OthelloGUI:
             legal_moves = self.game.getPlayPosition(player)
 
             # 如果没有合法动作，自动跳过回合
-            if not legal_moves:
+            if legal_moves == []:
                 if self.game.numWhite + self.game.numBlack == 64:
                     self.end_game()
                     break
+                self.draw_board()
+                self.root.update()  # 更新界面显示 AI 的操作
                 continue
 
             # 判断是否轮到 AI
@@ -81,7 +83,7 @@ class OthelloGUI:
                 self.game.update(x, y, player)
                 self.draw_board(x, y)
                 self.root.update()  # 更新界面显示 AI 的操作
-                time.sleep(0.5)  # 延迟 0.5 秒以便视觉反馈
+                time.sleep(0.1)  # 延迟 0.5 秒以便视觉反馈
             else:
                 # 等待玩家点击合法位置
                 x, y = self.get_player_action(legal_moves)
